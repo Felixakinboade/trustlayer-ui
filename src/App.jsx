@@ -106,7 +106,7 @@ export default function App() {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isTablet = useMediaQuery('(max-width: 1024px)');
   
-  const API_URL = import.meta.env.VITE_API_URL || "https://odd7yedcn7.execute-api.eu-west-2.amazonaws.com/dev";
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://odd7yedcn7.execute-api.eu-west-2.amazonaws.com/dev";
 
   // Transform API response to UI format
   const transformApiResponse = (apiData) => {
@@ -231,13 +231,32 @@ export default function App() {
     setApiResult(null);
     
     try {
-      const response = await fetch(`${API_URL}/scan/url`, {
+      const submittedUrl = url.trim();
+      let response = await fetch(`${API_BASE}/scan/url`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ value: url.trim() }),
+        body: JSON.stringify({
+          url: submittedUrl,
+        }),
       });
+      
+      // Fallback: try with "value" if "url" format fails
+      if (!response.ok && response.status === 400) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.error && errorData.error.includes("value")) {
+          response = await fetch(`${API_BASE}/scan/url`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              value: submittedUrl,
+            }),
+          });
+        }
+      }
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -267,7 +286,7 @@ export default function App() {
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: isMobile ? "12px 16px" : "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: isMobile ? "wrap" : "nowrap" }}>
           <div style={{ display: "flex", gap: isMobile ? 8 : 12, alignItems: "center" }}>
             <div style={{ width: isMobile ? 32 : 36, height: isMobile ? 32 : 36, borderRadius: 12, background: "linear-gradient(135deg, #60A5FA, #A78BFA, #34D399)" }} />
-            <div>
+      <div>
               <div style={{ fontWeight: 800, letterSpacing: "-0.02em", fontSize: isMobile ? 14 : 16 }}>TrustLayer</div>
               {!isMobile && <div style={{ fontSize: 12, opacity: 0.75 }}>URL risk triage • explainable signals • API-ready</div>}
             </div>
