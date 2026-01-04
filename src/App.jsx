@@ -219,8 +219,8 @@ export default function App() {
                       <LinkIcon size={18} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 800, color: "#0F172A" }}>Scan a URL</div>
-                      <div style={{ fontSize: 13, color: "#64748B" }}>Paste a link to receive an explainable risk verdict.</div>
+                      <div style={{ fontWeight: 800, color: "#0F172A" }}>Scan a link before you open it</div>
+                      <div style={{ fontSize: 13, color: "#64748B" }}>Instant, explainable risk analysis for suspicious URLs.</div>
                     </div>
                   </div>
 
@@ -229,7 +229,7 @@ export default function App() {
                       <input
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
-                        placeholder="https://example.com/login"
+                        placeholder="Paste a URL to analyze (e.g. https://login.identity-check.io)"
                         style={{
                           width: "100%",
                           padding: "14px 14px 14px 44px",
@@ -255,12 +255,12 @@ export default function App() {
                         boxShadow: "0 10px 18px rgba(37,99,235,0.20)",
                       }}
                     >
-                      {loading ? "Scanning..." : "Scan"}
+                      {loading ? "Scanning..." : "Scan link"}
                     </button>
                   </div>
 
                   <div style={{ marginTop: 10, fontSize: 12, color: "#64748B" }}>
-                    Privacy note: Designed for minimal collection. Avoid submitting secrets. This is a triage tool.
+                    Privacy-first analysis. Links are processed ephemerally and never stored.
                   </div>
                 </div>
               </div>
