@@ -253,10 +253,10 @@ export default function App() {
                         color: "white",
                         background: loading ? "#94A3B8" : "linear-gradient(90deg, #2563EB, #7C3AED)",
                         boxShadow: "0 10px 18px rgba(37,99,235,0.20)",
-                        padding: "14px 20px 14px 12px",
+                        padding: "14px 20px",
                         fontSize: 14,
                         whiteSpace: "nowrap",
-                        textAlign: "right",
+                        textAlign: "center",
                       }}
                     >
                       {loading ? "Scanning..." : "Scan link"}
