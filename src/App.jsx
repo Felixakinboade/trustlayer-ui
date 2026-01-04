@@ -238,7 +238,7 @@ export default function App() {
     
     try {
       const submittedUrl = url.trim();
-      const response = await fetch(`${API_BASE}/scan/url`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || "https://odd7yedcn7.execute-api.eu-west-2.amazonaws.com/prod"}/scan/url`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
