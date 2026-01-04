@@ -248,15 +248,19 @@ export default function App() {
                       style={{
                         border: "none",
                         borderRadius: 14,
-                        cursor: "pointer",
+                        cursor: loading ? "not-allowed" : "pointer",
                         fontWeight: 800,
                         color: "white",
                         background: loading ? "#94A3B8" : "linear-gradient(90deg, #2563EB, #7C3AED)",
-                        boxShadow: "0 10px 18px rgba(37,99,235,0.20)",
+                        boxShadow: loading ? "none" : "0 10px 18px rgba(37,99,235,0.20)",
                         padding: "14px 20px",
                         fontSize: 14,
                         whiteSpace: "nowrap",
                         textAlign: "center",
+                        minWidth: "160px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
                       {loading ? "Scanning..." : "Scan link"}
