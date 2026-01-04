@@ -106,7 +106,13 @@ export default function App() {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isTablet = useMediaQuery('(max-width: 1024px)');
   
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://odd7yedcn7.execute-api.eu-west-2.amazonaws.com/dev";
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://odd7yedcn7.execute-api.eu-west-2.amazonaws.com/prod";
+  
+  // Debug: Log API base URL (remove in production if needed)
+  useEffect(() => {
+    console.log("API_BASE:", API_BASE);
+    console.log("VITE_API_BASE_URL from env:", import.meta.env.VITE_API_BASE_URL);
+  }, []);
 
   // Transform API response to UI format
   const transformApiResponse = (apiData) => {
@@ -250,8 +256,16 @@ export default function App() {
       const data = await response.json();
       setApiResult(data);
     } catch (err) {
-      setError(err.message || "Failed to scan URL. Please try again.");
+      // Handle network errors specifically
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError("Unable to reach TrustLayer API. Please check your connection and try again.");
+      } else if (err.name === 'NetworkError' || err.message.includes('network')) {
+        setError("Unable to reach TrustLayer API. Please try again.");
+      } else {
+        setError(err.message || "Failed to scan URL. Please try again.");
+      }
       console.error("Scan error:", err);
+      console.error("API_BASE:", API_BASE);
     } finally {
       setLoading(false);
     }
