@@ -232,7 +232,7 @@ export default function App() {
     
     try {
       const submittedUrl = url.trim();
-      let response = await fetch(`${API_BASE}/scan/url`, {
+      const response = await fetch(`${API_BASE}/scan/url`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -241,22 +241,6 @@ export default function App() {
           url: submittedUrl,
         }),
       });
-      
-      // Fallback: try with "value" if "url" format fails
-      if (!response.ok && response.status === 400) {
-        const errorData = await response.json().catch(() => ({}));
-        if (errorData.error && errorData.error.includes("value")) {
-          response = await fetch(`${API_BASE}/scan/url`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              value: submittedUrl,
-            }),
-          });
-        }
-      }
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
