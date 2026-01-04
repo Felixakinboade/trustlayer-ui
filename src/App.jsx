@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import {
@@ -81,9 +81,28 @@ const featureCards = [
   },
 ];
 
+// Hook for responsive design
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [matches, query]);
+
+  return matches;
+}
+
 export default function App() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isTablet = useMediaQuery('(max-width: 1024px)');
 
   // Demo results engine (replace later with API response)
   const demoResult = useMemo(() => {
@@ -170,32 +189,42 @@ export default function App() {
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <div style={{ width: 36, height: 36, borderRadius: 12, background: "linear-gradient(135deg, #60A5FA, #A78BFA, #34D399)" }} />
-      <div>
-              <div style={{ fontWeight: 800, letterSpacing: "-0.02em" }}>TrustLayer</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>URL risk triage • explainable signals • API-ready</div>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: isMobile ? "12px 16px" : "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: isMobile ? "wrap" : "nowrap" }}>
+          <div style={{ display: "flex", gap: isMobile ? 8 : 12, alignItems: "center" }}>
+            <div style={{ width: isMobile ? 32 : 36, height: isMobile ? 32 : 36, borderRadius: 12, background: "linear-gradient(135deg, #60A5FA, #A78BFA, #34D399)" }} />
+            <div>
+              <div style={{ fontWeight: 800, letterSpacing: "-0.02em", fontSize: isMobile ? 14 : 16 }}>TrustLayer</div>
+              {!isMobile && <div style={{ fontSize: 12, opacity: 0.75 }}>URL risk triage • explainable signals • API-ready</div>}
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 18, fontSize: 13, opacity: 0.9 }}>
-            <a href="#scan" style={{ color: "white", textDecoration: "none" }}>Scan</a>
-            <a href="#signals" style={{ color: "white", textDecoration: "none" }}>Signals</a>
-            <a href="#integrations" style={{ color: "white", textDecoration: "none" }}>Integrations</a>
-            <a href="#about" style={{ color: "white", textDecoration: "none" }}>About</a>
-          </div>
+          {!isMobile && (
+            <div style={{ display: "flex", gap: 18, fontSize: 13, opacity: 0.9 }}>
+              <a href="#scan" style={{ color: "white", textDecoration: "none" }}>Scan</a>
+              <a href="#signals" style={{ color: "white", textDecoration: "none" }}>Signals</a>
+              <a href="#integrations" style={{ color: "white", textDecoration: "none" }}>Integrations</a>
+              <a href="#about" style={{ color: "white", textDecoration: "none" }}>About</a>
+            </div>
+          )}
+          {isMobile && (
+            <div style={{ display: "flex", gap: 12, fontSize: 12, opacity: 0.9, flexWrap: "wrap" }}>
+              <a href="#scan" style={{ color: "white", textDecoration: "none", padding: "4px 8px" }}>Scan</a>
+              <a href="#signals" style={{ color: "white", textDecoration: "none", padding: "4px 8px" }}>Signals</a>
+              <a href="#integrations" style={{ color: "white", textDecoration: "none", padding: "4px 8px" }}>Integrations</a>
+              <a href="#about" style={{ color: "white", textDecoration: "none", padding: "4px 8px" }}>About</a>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Hero */}
       <div style={{ background: "linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 70%)" }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "48px 20px 24px" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: isMobile ? "24px 16px" : "48px 20px 24px" }}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
-            style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 24, alignItems: "start" }}
+            style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr" : "1.15fr 0.85fr", gap: isMobile ? 20 : 24, alignItems: "start" }}
           >
             <div>
               <div style={{ display: "inline-flex", gap: 8, alignItems: "center", padding: "6px 10px", borderRadius: 999, background: "#EEF2FF", color: "#3730A3", fontSize: 12, fontWeight: 600 }}>
@@ -203,7 +232,7 @@ export default function App() {
                 Market-standard, explainable URL risk assessment
               </div>
 
-              <h1 style={{ marginTop: 14, fontSize: 44, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 900, color: "#0F172A" }}>
+              <h1 style={{ marginTop: 14, fontSize: isMobile ? 28 : isTablet ? 36 : 44, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 900, color: "#0F172A" }}>
                 Scan links with <span style={{ background: "linear-gradient(90deg, #2563EB, #7C3AED, #10B981)", WebkitBackgroundClip: "text", color: "transparent" }}>clarity</span>, not guesswork.
               </h1>
 
@@ -225,19 +254,20 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 160px", gap: 10 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 160px", gap: 10 }}>
                     <div style={{ position: "relative" }}>
                       <input
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
-                        placeholder="Paste a URL to analyze (e.g. https://login.identity-check.io)"
+                        placeholder={isMobile ? "Paste a URL to analyze" : "Paste a URL to analyze (e.g. https://login.identity-check.io)"}
                         style={{
                           width: "100%",
-                          padding: "14px 14px 14px 44px",
+                          padding: isMobile ? "16px 16px 16px 44px" : "14px 14px 14px 44px",
                           borderRadius: 14,
                           border: "1px solid #CBD5E1",
                           outline: "none",
                           fontSize: 14,
+                          minHeight: isMobile ? "48px" : "auto",
                         }}
                       />
                       <ScanSearch size={18} style={{ position: "absolute", left: 14, top: 14, color: "#64748B" }} />
@@ -254,14 +284,17 @@ export default function App() {
                         color: "white",
                         background: loading ? "#94A3B8" : "linear-gradient(90deg, #2563EB, #7C3AED)",
                         boxShadow: loading ? "none" : "0 10px 18px rgba(37,99,235,0.20)",
-                        padding: "14px 20px",
+                        padding: isMobile ? "16px 20px" : "14px 20px",
                         fontSize: 14,
                         whiteSpace: "nowrap",
                         textAlign: "center",
-                        minWidth: "160px",
+                        minWidth: isMobile ? "100%" : "160px",
+                        minHeight: isMobile ? "48px" : "auto",
+                        width: isMobile ? "100%" : "auto",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        touchAction: "manipulation",
                       }}
                     >
                       {loading ? "Scanning..." : "Scan link"}
@@ -275,7 +308,7 @@ export default function App() {
               </div>
 
               {/* Feature row */}
-              <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+              <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 12 }}>
                 {featureCards.map((f) => (
                   <div key={f.title} style={{ background: "white", border: "1px solid #E2E8F0", borderRadius: 16, padding: 14 }}>
                     <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -329,7 +362,7 @@ export default function App() {
                 </div>
 
                 {/* Charts */}
-                <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14 }}>
                   <div style={{ border: "1px solid #E2E8F0", borderRadius: 16, padding: 12 }}>
                     <div style={{ fontSize: 12, fontWeight: 800, color: "#0F172A" }}>Risk distribution</div>
                     <div style={{ height: 170 }}>
@@ -376,7 +409,7 @@ export default function App() {
               </div>
 
               {/* Micro "outputs" */}
-              <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12 }}>
                 <div style={{ background: "white", border: "1px solid #E2E8F0", borderRadius: 18, padding: 14 }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <CheckCircle2 size={18} />
@@ -409,11 +442,11 @@ export default function App() {
       </div>
 
       {/* Signals section */}
-      <div id="signals" style={{ maxWidth: 1120, margin: "0 auto", padding: "24px 20px" }}>
+      <div id="signals" style={{ maxWidth: 1120, margin: "0 auto", padding: isMobile ? "24px 16px" : "24px 20px" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12, fontWeight: 900, color: "#2563EB" }}>Explainability</div>
-            <h2 style={{ marginTop: 6, fontSize: 26, fontWeight: 950, letterSpacing: "-0.02em", color: "#0F172A" }}>
+            <h2 style={{ marginTop: 6, fontSize: isMobile ? 20 : 26, fontWeight: 950, letterSpacing: "-0.02em", color: "#0F172A" }}>
               Signals detected
             </h2>
             <p style={{ marginTop: 8, color: "#64748B", maxWidth: 820, lineHeight: 1.6 }}>
@@ -422,7 +455,7 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12 }}>
           {(demoResult.signals.length ? demoResult.signals : [{
             label: "No high-risk signals detected",
             detail: "Try a URL with /login or a shortened link to see the explainability panel populate.",
@@ -456,11 +489,11 @@ export default function App() {
 
       {/* Integrations */}
       <div id="integrations" style={{ background: "#0B1220" }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "42px 20px" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: isMobile ? "32px 16px" : "42px 20px" }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 900, color: "#93C5FD" }}>API roadmap</div>
-              <h2 style={{ marginTop: 6, fontSize: 28, fontWeight: 950, letterSpacing: "-0.02em", color: "white" }}>
+              <h2 style={{ marginTop: 6, fontSize: isMobile ? 22 : 28, fontWeight: 950, letterSpacing: "-0.02em", color: "white" }}>
                 Multi-source risk intelligence
               </h2>
               <p style={{ marginTop: 8, color: "rgba(255,255,255,0.75)", maxWidth: 860, lineHeight: 1.6 }}>
@@ -470,7 +503,7 @@ export default function App() {
             </div>
           </div>
 
-          <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 12 }}>
             {integrationTiles.map((it) => (
               <div key={it.name} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 18, padding: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
@@ -499,8 +532,8 @@ export default function App() {
       </div>
 
       {/* About */}
-      <div id="about" style={{ maxWidth: 1120, margin: "0 auto", padding: "34px 20px 60px" }}>
-        <h2 style={{ fontSize: 24, fontWeight: 950, letterSpacing: "-0.02em", color: "#0F172A" }}>About TrustLayer</h2>
+      <div id="about" style={{ maxWidth: 1120, margin: "0 auto", padding: isMobile ? "24px 16px 40px" : "34px 20px 60px" }}>
+        <h2 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 950, letterSpacing: "-0.02em", color: "#0F172A" }}>About TrustLayer</h2>
         <p style={{ marginTop: 10, color: "#475569", lineHeight: 1.7, maxWidth: 920 }}>
           TrustLayer is an advisory risk-triage layer for URLs. It is built to produce a defensible verdict using explainable signals, suitable for
           product UX, helpdesk triage, and security workflows. The UI is intentionally professional and evidence-oriented.
