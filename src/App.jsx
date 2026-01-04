@@ -172,7 +172,7 @@ export default function App() {
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <div style={{ width: 36, height: 36, borderRadius: 12, background: "linear-gradient(135deg, #60A5FA, #A78BFA, #34D399)" }} />
-            <div>
+      <div>
               <div style={{ fontWeight: 800, letterSpacing: "-0.02em" }}>TrustLayer</div>
               <div style={{ fontSize: 12, opacity: 0.75 }}>URL risk triage • explainable signals • API-ready</div>
             </div>
@@ -224,7 +224,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: 10 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 160px", gap: 10 }}>
                     <div style={{ position: "relative" }}>
                       <input
                         value={url}
@@ -253,10 +253,13 @@ export default function App() {
                         color: "white",
                         background: loading ? "#94A3B8" : "linear-gradient(90deg, #2563EB, #7C3AED)",
                         boxShadow: "0 10px 18px rgba(37,99,235,0.20)",
+                        padding: "14px 20px",
+                        fontSize: 14,
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {loading ? "Scanning..." : "Scan link"}
-                    </button>
+        </button>
                   </div>
 
                   <div style={{ marginTop: 10, fontSize: 12, color: "#64748B" }}>
