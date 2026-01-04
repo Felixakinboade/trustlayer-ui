@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Shield, Link as LinkIcon, Search, CheckCircle2, AlertTriangle, XCircle, Info } from "lucide-react";
-import "./app.css";
+import "./App.css";
 
 function Badge({ tone = "neutral", children }) {
   return <span className={`badge badge--${tone}`}>{children}</span>;
