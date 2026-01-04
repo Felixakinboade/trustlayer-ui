@@ -101,11 +101,63 @@ function useMediaQuery(query) {
 export default function App() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [apiResult, setApiResult] = useState(null);
+  const [error, setError] = useState("");
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isTablet = useMediaQuery('(max-width: 1024px)');
+  
+  const API_URL = import.meta.env.VITE_API_URL || "https://odd7yedcn7.execute-api.eu-west-2.amazonaws.com/dev";
 
-  // Demo results engine (replace later with API response)
+  // Transform API response to UI format
+  const transformApiResponse = (apiData) => {
+    const score = apiData.score || 0;
+    const riskLevel = apiData.risk_level || "medium";
+    
+    // Map risk_level to verdict tone
+    let verdictTone = "warn";
+    if (riskLevel === "low") verdictTone = "safe";
+    else if (riskLevel === "high") verdictTone = "risk";
+    
+    const verdict = scoreToVerdict(score);
+    verdict.tone = verdictTone;
+    
+    // Convert reasons to signals
+    const signals = (apiData.reasons || []).map((reason, idx) => ({
+      label: reason.split(":")[0] || `Signal ${idx + 1}`,
+      detail: reason,
+      weight: 0,
+      severity: riskLevel === "high" ? "high" : riskLevel === "medium" ? "medium" : "low",
+    }));
+    
+    // Risk distribution
+    const dist = [
+      { name: "Benign Indicators", value: score },
+      { name: "Risk Indicators", value: 100 - score },
+    ];
+    
+    // Signal severity breakdown
+    const severityBars = [
+      { name: "High", value: signals.filter(s => s.severity === "high").length },
+      { name: "Medium", value: signals.filter(s => s.severity === "medium").length },
+      { name: "Low", value: signals.filter(s => s.severity === "low").length },
+    ];
+    
+    // Recommendation
+    const recommendation = apiData.recommended_action === "caution"
+      ? "Proceed with caution. Avoid entering credentials. Validate sender and domain ownership."
+      : apiData.recommended_action === "block"
+      ? "Do not proceed. Avoid entering any credentials. Verify via an alternate trusted channel."
+      : "Proceed normally. If prompted for credentials, verify the domain matches the expected organization.";
+    
+    return { score, verdict, signals, recommendation, dist, severityBars, apiData };
+  };
+
+  // Demo results engine (fallback when no API result)
   const demoResult = useMemo(() => {
+    if (apiResult) {
+      return transformApiResponse(apiResult);
+    }
+    
     const u = url.toLowerCase();
     let score = 82;
 
@@ -163,17 +215,40 @@ export default function App() {
         : "Do not proceed. Avoid entering any credentials. Verify via an alternate trusted channel.";
 
     return { score, verdict, signals, recommendation, dist, severityBars };
-  }, [url]);
+  }, [url, apiResult]);
 
   const toneColors = paletteForTone(demoResult.verdict.tone);
   const VerdictIcon = demoResult.verdict.icon;
 
   async function onScan() {
+    if (!url.trim()) {
+      setError("Please enter a URL to scan");
+      return;
+    }
+    
     setLoading(true);
+    setError("");
+    setApiResult(null);
+    
     try {
-      // Later: call your API Gateway -> Lambda here.
-      // const res = await fetch(import.meta.env.VITE_API_URL + "/scan/url", { ... })
-      await new Promise((r) => setTimeout(r, 550)); // demo latency
+      const response = await fetch(`${API_URL}/scan/url`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ value: url.trim() }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setApiResult(data);
+    } catch (err) {
+      setError(err.message || "Failed to scan URL. Please try again.");
+      console.error("Scan error:", err);
     } finally {
       setLoading(false);
     }
@@ -301,6 +376,11 @@ export default function App() {
         </button>
                   </div>
 
+                  {error && (
+                    <div style={{ marginTop: 10, padding: "12px", borderRadius: 12, background: "#FEF2F2", border: "1px solid #FECACA", color: "#991B1B", fontSize: 13 }}>
+                      {error}
+                    </div>
+                  )}
                   <div style={{ marginTop: 10, fontSize: 12, color: "#64748B" }}>
                     Privacy-first analysis. Links are processed ephemerally and never stored.
                   </div>
