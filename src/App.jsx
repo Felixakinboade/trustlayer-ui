@@ -116,8 +116,12 @@ export default function App() {
 
   // Transform API response to UI format
   const transformApiResponse = (apiData) => {
+    // Read all required response fields
     const score = apiData.score || 0;
     const riskLevel = apiData.risk_level || "medium";
+    const confidence = apiData.confidence || "low";
+    const recommendedAction = apiData.recommended_action || "caution";
+    const reasons = apiData.reasons || [];
     
     // Map risk_level to verdict tone
     let verdictTone = "warn";
@@ -128,7 +132,7 @@ export default function App() {
     verdict.tone = verdictTone;
     
     // Convert reasons to signals
-    const signals = (apiData.reasons || []).map((reason, idx) => ({
+    const signals = reasons.map((reason, idx) => ({
       label: reason.split(":")[0] || `Signal ${idx + 1}`,
       detail: reason,
       weight: 0,
@@ -148,14 +152,26 @@ export default function App() {
       { name: "Low", value: signals.filter(s => s.severity === "low").length },
     ];
     
-    // Recommendation
-    const recommendation = apiData.recommended_action === "caution"
+    // Recommendation based on recommended_action
+    const recommendation = recommendedAction === "caution"
       ? "Proceed with caution. Avoid entering credentials. Validate sender and domain ownership."
-      : apiData.recommended_action === "block"
+      : recommendedAction === "block"
       ? "Do not proceed. Avoid entering any credentials. Verify via an alternate trusted channel."
       : "Proceed normally. If prompted for credentials, verify the domain matches the expected organization.";
     
-    return { score, verdict, signals, recommendation, dist, severityBars, apiData };
+    return { 
+      score, 
+      verdict, 
+      signals, 
+      recommendation, 
+      dist, 
+      severityBars, 
+      confidence,
+      riskLevel,
+      recommendedAction,
+      reasons,
+      apiData 
+    };
   };
 
   // Demo results engine (fallback when no API result)
